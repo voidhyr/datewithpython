@@ -1,63 +1,81 @@
 import random
-
-
-
 from hangman_words import word_list
+from hangman_arts import logo, stages
 
+print(logo)
+print("\nWelcome to Hangman!")
+
+# Choose random word
 chosen_word = random.choice(word_list)
 word_length = len(chosen_word)
 
-end_of_game = False
 lives = 6
+hint_used = False
+end_of_game = False
 
+print(f"\nThe word has {word_length} letters.")
+print(f"You have {lives} lives.")
+print("Type 'hint' to reveal one letter (costs 1 life).\n")
 
-from hangman_arts import logo , stages
-print(logo)
-print("\nWelcome to Hangman!")
-print(f"The word has {word_length} letters.")
-print(f"You have {lives} lives.\n")
-
-
-#Create blanks
-display = []
-for _ in range(word_length):
-    display += "_"
+# Create blank display
+display = ["_"] * word_length
 print(" ".join(display))
+
 while not end_of_game:
-    guess = input("Guess a letter: ").lower()
 
-    
-    
-    if guess in display:
-        print(f"You've already guessed {guess}")
+    guess = input("\nGuess a letter: ").lower()
 
-    #Check guessed letter
-    for position in range(word_length):
-        letter = chosen_word[position]
-        #print(f"Current position: {position}\n Current letter: {letter}\n Guessed letter: {guess}")
-        if letter == guess:
-            display[position] = letter
+    # -------- HINT SYSTEM --------
+    if guess == "hint":
+        if hint_used:
+            print("You already used your hint!")
+        else:
+            hint_used = True
+            lives -= 1
+            print("Hint used! You lost 1 life.")
 
-    #Check if user is wrong.
-    if guess not in chosen_word:
-       
-        print(f"You guessed {guess}, that's not in the word. You lose a life.")
-        
-        lives -= 1
+            hidden_indexes = [i for i in range(len(display)) if display[i] == "_"]
+
+            if hidden_indexes:
+                reveal_index = random.choice(hidden_indexes)
+                display[reveal_index] = chosen_word[reveal_index]
+
+        print(" ".join(display))
+        print(stages[lives])
+
         if lives == 0:
             end_of_game = True
-            print(f"***********************IT WAS {chosen_word}! YOU LOSE**********************")
 
+        continue
+    # --------------------------------
 
+    # Prevent repeated correct guess
+    if guess in display:
+        print(f"You've already guessed '{guess}'")
+        continue
 
-    #Join all the elements in the list and turn it into a String.
-    print(f"{' '.join(display)}")
+    # Correct guess
+    if guess in chosen_word:
+        for position in range(word_length):
+            if chosen_word[position] == guess:
+                display[position] = guess
+    else:
+        lives -= 1
+        print(f"You guessed '{guess}', that's not in the word. You lose a life.")
 
-    #Check if user has got all letters.
+    print(" ".join(display))
+    print(stages[lives])
+
+    # Win check
     if "_" not in display:
         end_of_game = True
-        print("You win.")
+        print("\n🎉 You win!")
 
-    
-    
-    print(stages[lives])
+    # Lose check
+    if lives == 0:
+        end_of_game = True
+
+# Final result
+if lives == 0:
+    print(f"\n💀 You ran out of lives.")
+    print(f"The word was: {chosen_word}")
