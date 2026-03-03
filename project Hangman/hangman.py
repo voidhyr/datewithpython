@@ -13,14 +13,16 @@ lives = 6
 
 from hangman_arts import logo , stages
 print(logo)
-
+print("\nWelcome to Hangman!")
+print(f"The word has {word_length} letters.")
+print(f"You have {lives} lives.\n")
 
 
 #Create blanks
 display = []
 for _ in range(word_length):
     display += "_"
-
+print(" ".join(display))
 while not end_of_game:
     guess = input("Guess a letter: ").lower()
 
